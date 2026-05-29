@@ -7643,9 +7643,15 @@ onAuthStateChanged(auth, async (user) => {
     autoSaveAssessment();
 
     // Pre-load any previously saved assessment data into the form
-    // (only if no session draft is present, to avoid overwriting a fresh session)
-    const hasSessionDraft = !!sessionStorage.getItem("nutriplan_draft");
-    if (!hasSessionDraft) {
+    // Skip if:
+    //   1. a session draft is already present (avoid overwriting fresh session), OR
+    //   2. the user explicitly clicked "Back to Assessment Form" (nutriplan_back flag), OR
+    //   3. a submitted assessment exists in sessionStorage (loadExistingAssessment will show
+    //      the dashboard instead — no need to populate the hidden form)
+    const hasSessionDraft      = !!sessionStorage.getItem("nutriplan_draft");
+    const wentBackToForm       = sessionStorage.getItem("nutriplan_back") === "1";
+    const hasSubmittedAssessment = !!sessionStorage.getItem("nutriplan_assessment");
+    if (!hasSessionDraft && !wentBackToForm && !hasSubmittedAssessment) {
       await loadAssessmentData(user.uid);
     }
 
