@@ -4659,6 +4659,49 @@ function buildFormData() {
 // ── EXECUTE SUBMISSION (called from modal handlers) ──
 // withFirebase: true  → also save to Firestore under currentUser
 // withFirebase: false → send to sheet + sessionStorage only (guest mode)
+// ── saveToFirestore ──
+// Writes submission to: submissions/{userId}  AND  accounts/{accountUid}/profiles/{userId}
+// Mirrors the old index.html logic exactly so admin + profile pages see the data.
+async function saveToFirestore(formData, accountUid, forSelf, relName, relation) {
+  try {
+    const { doc, getDoc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const db = getDb();
+    if (!db) return;
+    const isEdit = !!(formData._editUid && formData._editUid !== '-');
+    let resolvedAccountUid = accountUid || null;
+    if (isEdit) {
+      try {
+        const existingSnap = await getDoc(doc(db, 'submissions', formData.userId));
+        if (existingSnap.exists() && existingSnap.data().accountUid) {
+          resolvedAccountUid = existingSnap.data().accountUid;
+        }
+      } catch(e) {}
+    }
+    const entry = {
+      ...formData,
+      accountUid: resolvedAccountUid,
+      forSelf:    forSelf !== false,
+      relName:    relName   || '',
+      relation:   relation  || '',
+      ...(isEdit
+        ? { updatedAt: serverTimestamp(), adminUpdatedAt: null }
+        : { createdAt: serverTimestamp() })
+    };
+    delete entry._editUid;
+    await setDoc(doc(db, 'submissions', formData.userId), entry, isEdit ? { merge: false } : {});
+    if (resolvedAccountUid) {
+      await setDoc(doc(db, 'accounts', resolvedAccountUid, 'profiles', formData.userId), {
+        userId:    formData.userId,
+        name:      formData.name,
+        forSelf:   entry.forSelf,
+        relName:   entry.relName,
+        relation:  entry.relation,
+        timestamp: formData.timestamp || ''
+      });
+    }
+  } catch(e) { console.warn('saveToFirestore error:', e); }
+}
+
 async function executeSubmit(formData, withFirebase) {
   const wasEdit = !!formData._editUid && formData._editUid !== '-';
   const btn = _pendingSubmitBtn;
@@ -4808,11 +4851,10 @@ window.proceedToAuth = function() {
         await executeSubmit(_pendingSubmitData, true);
       }
       const isEdit = !!_pendingSubmitData?._editUid && _pendingSubmitData._editUid !== '-';
-      if (typeof window.showAccountDone === 'function')
-        window.showAccountDone(
-          'Profile ' + (isEdit ? 'Updated! ✅' : 'Saved! ✅'),
-          isEdit ? 'Your profile has been updated.' : 'Linked to your account (' + user.email + ').'
-        );
+      // Close modal and redirect to dietplan
+      const modal = document.getElementById('accountModal');
+      if (modal) modal.style.display = 'none';
+      window.location.href = 'dietplan.html';
     })();
   } else {
     // Not logged in — show create / sign-in tabs
@@ -4856,6 +4898,12 @@ window.createAccount = async function() {
     const cred = await createUserWithEmailAndPassword(window._fbAuth, email, pass);
     const user = cred.user;
     if (createBtn) { createBtn.disabled=false; createBtn.textContent='Create Account →'; }
+    // Write accounts/{uid} doc so admin page and profile page can find it
+    try {
+      const { doc: _doc, setDoc: _setDoc, serverTimestamp: _sts } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const _db = getDb();
+      if (_db) await _setDoc(_doc(_db, 'accounts', user.uid), { email, createdAt: _sts() });
+    } catch(e) { console.warn('accounts doc write error:', e); }
     // Update nav
     const profileBtn = document.getElementById('nav-profile-btn');
     if (profileBtn) { profileBtn.textContent=(email||'U')[0].toUpperCase(); profileBtn.classList.add('show'); }
@@ -4864,9 +4912,10 @@ window.createAccount = async function() {
     if (_pendingSubmitData) {
       await executeSubmit(_pendingSubmitData, true);
     }
-    // Show done step in modal
-    if (typeof window.showAccountDone === 'function')
-      window.showAccountDone('Account Created & Plan Saved! ✅', 'Your plan is saved to your account (' + email + ').');
+    // Close modal and redirect to dietplan
+    const modal = document.getElementById('accountModal');
+    if (modal) modal.style.display = 'none';
+    window.location.href = 'dietplan.html';
   } catch(err) {
     if (createBtn) { createBtn.disabled=false; createBtn.textContent='Create Account →'; }
     const msg = ({
@@ -4900,9 +4949,10 @@ window.signInExisting = async function() {
     if (_pendingSubmitData) {
       await executeSubmit(_pendingSubmitData, true);
     }
-    // Show done step in modal
-    if (typeof window.showAccountDone === 'function')
-      window.showAccountDone('Signed In & Plan Saved! ✅', 'Your plan is saved to your account (' + email + ').');
+    // Close modal and redirect to dietplan
+    const modal = document.getElementById('accountModal');
+    if (modal) modal.style.display = 'none';
+    window.location.href = 'dietplan.html';
   } catch(err) {
     if (loginBtn) { loginBtn.disabled=false; loginBtn.textContent='Sign In →'; }
     const msg = ({
