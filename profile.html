@@ -17,10 +17,21 @@
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh;padding-top:60px;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh;}
+
+  nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+  .nav-brand{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--teal);font-weight:600;letter-spacing:-0.5px;text-decoration:none;flex-shrink:0;}
+  .nav-brand span{color:var(--text);font-weight:300;font-style:italic;}
+  .nav-links{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0;}
   .nav-links::-webkit-scrollbar{display:none;}
   .nav-links a{flex:0 0 auto;white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;padding:6px 14px;border-radius:20px;transition:all 0.2s;}
   .nav-links a:hover,.nav-links a.active{background:var(--teal-light);color:var(--teal);}
+  .nav-profile-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;font-family:'Fraunces',serif;font-size:0.95rem;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:background 0.2s;}
+  .nav-profile-btn:hover{background:var(--teal-dark);}
+  .nav-profile-btn.show{display:flex;}
+  .nav-signin-btn{display:none;align-items:center;gap:6px;background:var(--teal);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;text-decoration:none;}
+  .nav-signin-btn:hover{background:var(--teal-dark);}
+  .nav-signin-btn.show{display:flex;}
 
   .page-hero{background:linear-gradient(160deg,#f0faf9 0%,#f5f6f8 70%);border-bottom:1px solid var(--border);padding:36px 24px 28px;text-align:center;}
   .page-hero h1{font-family:'Fraunces',serif;font-size:clamp(1.5rem,4vw,2rem);font-weight:600;color:var(--text);margin-bottom:6px;}
@@ -157,28 +168,6 @@
   .empty-state .ei{font-size:2.8rem;margin-bottom:12px;}
   .empty-state p{font-size:14px;margin-bottom:14px;}
   .empty-state a{display:inline-block;background:var(--teal);color:#fff;text-decoration:none;padding:10px 22px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;}
-
-  /* NEW PROFILE FORM EMBED */
-  #new-profile-form-wrap{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:2px solid var(--teal);overflow:hidden;animation:fadeUp 0.35s ease both;}
-  .npf-header{background:linear-gradient(135deg,var(--teal),var(--teal-dark));padding:22px 26px;display:flex;align-items:center;justify-content:space-between;}
-  .npf-header-text{color:#fff;}
-  .npf-header-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-bottom:4px;}
-  .npf-header-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;}
-  .npf-close-btn{background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;}
-  .npf-close-btn:hover{background:rgba(255,255,255,0.35);}
-  .npf-body{padding:0;}
-  /* Embedded form overrides */
-  #npf-form-content .progress-area{margin:20px 24px 0;border-radius:var(--radius-sm);overflow:hidden;}
-  #npf-form-content .page-outer{padding:16px 20px 40px;}
-  #npf-form-content .form-column{max-width:100%;}
-  #npf-form-content .card{margin-bottom:18px;}
-  #npf-form-content #topnav,
-  #npf-form-content #form-closed-banner,
-  #npf-form-content #wizard-body > #top
-  #npf-form-content body,
-  #npf-form-content html{overflow:visible!important;}
-  /* Submit button in embed */
-  #npf-form-content .submit-btn-wrap{padding:0 20px 30px;}
 
   /* DIET PLAN TAB */
   .diet-section{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-shadow);border:1px solid var(--border);padding:26px;margin-bottom:22px;}
@@ -448,128 +437,12 @@
   .dp-ns-label { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-top:3px; }
   
   @media(max-width:640px){
+    nav{padding:0 16px;}
     .d-grid{grid-template-columns:1fr 1fr;}
     .dk{min-width:110px;}
     .eli-actions{gap:5px;}
     .diet-meal-grid{grid-template-columns:1fr 1fr;}
   }
-
-  /* ═══════════════════════════════════════════
-     SHARED NAVBAR — NutriPlan consistent style
-  ═══════════════════════════════════════════ */
-  #topnav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 200;
-    height: 60px;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    box-shadow: 0 1px 12px rgba(0,0,0,0.06);
-  }
-  .nav-brand {
-    font-family: 'Fraunces', serif;
-    font-size: 1.3rem;
-    color: var(--teal);
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    text-decoration: none;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-  .nav-brand span { color: var(--text); font-weight: 300; font-style: italic; }
-  .nav-center {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .nav-link {
-    background: none;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 7px 16px;
-    border-radius: 20px;
-    position: relative;
-    transition: color 0.18s, background 0.18s, box-shadow 0.18s;
-    letter-spacing: 0.2px;
-    white-space: nowrap;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 38px;
-  }
-  .nav-link:hover { color: var(--teal-dark); background: rgba(26,158,143,0.10); }
-  .nav-link.active { color: #ffffff; font-weight: 800; background: var(--teal); box-shadow: 0 4px 14px rgba(26,158,143,0.28); }
-  .nav-link-auth { display: none; }
-  .nav-link-auth.visible { display: flex; }
-  .nav-msg-dot {
-    position: absolute; top: 4px; right: 5px;
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #dc2626; border: 2px solid #fff; display: none;
-  }
-  .nav-msg-dot.show { display: block; }
-  .nav-right {
-    display: flex; align-items: center; gap: 10px;
-    position: relative; z-index: 1; flex-shrink: 0;
-  }
-  .nav-signin-btn {
-    display: none; align-items: center; gap: 6px;
-    background: var(--teal); color: #fff; border: none;
-    border-radius: 20px; padding: 8px 18px; font-size: 13px; font-weight: 600;
-    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; text-decoration: none;
-  }
-  .nav-signin-btn:hover { background: var(--teal-dark); }
-  .nav-signin-btn.show { display: flex; }
-  .nav-profile-btn {
-    display: none; align-items: center; justify-content: center;
-    width: 38px; height: 38px; border-radius: 50%; background: var(--teal);
-    color: #fff; font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 600;
-    cursor: pointer; border: 2px solid var(--teal-light); flex-shrink: 0;
-    transition: background 0.2s, transform 0.15s; position: relative;
-  }
-  .nav-profile-btn:hover { background: var(--teal-dark); transform: scale(1.05); }
-  .nav-profile-btn.show { display: flex; }
-  #avatar-dropdown {
-    display: none; position: absolute; top: calc(100% + 10px); right: 0;
-    background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.14); min-width: 200px; z-index: 300;
-    overflow: hidden; animation: navDropIn 0.18s ease;
-  }
-  #avatar-dropdown.open { display: block; }
-  @keyframes navDropIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-  .avatar-dd-item {
-    display: flex; align-items: center; gap: 10px; padding: 13px 18px;
-    font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer;
-    text-decoration: none; transition: background 0.15s; border: none;
-    background: none; width: 100%; font-family: 'DM Sans', sans-serif;
-  }
-  .avatar-dd-item:hover { background: var(--teal-light); color: var(--teal); }
-  .avatar-dd-item.danger:hover { background: #fef2f2; color: #dc2626; }
-  .avatar-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
-  .avatar-dd-icon { font-size: 1.1rem; }
-  @media (max-width: 700px) {
-    #topnav { padding: 0 12px; }
-    .nav-center { position: static; transform: none; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; margin: 0 8px; justify-content: flex-start; }
-    .nav-center::-webkit-scrollbar { display: none; }
-    .nav-link { font-size: 12.5px; padding: 6px 11px; }
-    .nav-brand { font-size: 1.1rem; }
-  }
-  @media (max-width: 480px) { .nav-link { font-size: 12px; padding: 5px 9px; } }
-
 </style>
 
 <script>
@@ -577,40 +450,27 @@
   var cached=localStorage.getItem('np_auth');
   var style=document.createElement('style');
   style.textContent=cached==='signed-in'
-    ?'#nav-signin-btn{display:none!important}#nav-profile-btn{display:flex!important}.nav-link-auth{display:flex!important}'
-    :'#nav-profile-btn{display:none!important}#nav-signin-btn{display:flex!important}.nav-link-auth{display:none!important}';
+    ?'#nav-signin-btn{display:none!important}#nav-profile-btn{display:flex!important}'
+    :'#nav-profile-btn{display:none!important}#nav-signin-btn{display:flex!important}';
   document.head.appendChild(style);
 })();
 </script>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════
-     NAVBAR — logo | center nav | profile
-════════════════════════════════════════════════════ -->
-<nav id="topnav">
+<nav>
   <a class="nav-brand" href="index.html">Nutri<span>Plan</span></a>
-  <!-- CENTER nav -->
-  <div class="nav-center" id="nav-center">
-    <a class="nav-link" href="index.html">Welcome</a>
-    <a class="nav-link" href="index.html?step=education">Education</a>
-    <a class="nav-link" href="index.html?step=assessment">Assessment</a>
-    <a class="nav-link nav-link-auth" href="Dietplan.html">Dietplan</a>
-    <a class="nav-link nav-link-auth" href="comments.html">Comments</a>
-    <a class="nav-link nav-link-auth" href="messages.html" style="position:relative;">Messages<span class="nav-msg-dot" id="nav-msg-dot"></span></a>
-  
-  </div>
-  <div class="nav-right">
-    <a href="profile.html" class="nav-signin-btn" id="nav-signin-btn">Sign In</a>
-    <div style="position:relative;flex-shrink:0;" id="nav-profile-wrap">
-      <button class="nav-profile-btn" id="nav-profile-btn" onclick="toggleNavDropdown()" title="My Account"></button>
-      <div id="avatar-dropdown">
-        <a href="profile.html" class="avatar-dd-item"><span class="avatar-dd-icon">👤</span> Dashboard</a>
-        <a href="profile.html" class="avatar-dd-item"><span class="avatar-dd-icon">📋</span> Profiles</a>
-        <a href="messages.html" class="avatar-dd-item"><span class="avatar-dd-icon">💬</span> Messages <span id="nav-dd-msg-dot" style="display:none;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;">●</span></a>
-        <div class="avatar-dd-sep"></div>
-        <button class="avatar-dd-item danger" onclick="doNavSignOut()"><span class="avatar-dd-icon">🚪</span> Sign Out</button>
-      </div>
+  <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;justify-content:flex-end;">
+    <div class="nav-links">
+     <a href="index.html#nutrition-overview">Nutrition</a>
+      <a href="index.html">Form</a>
+      <a href="education.html">Education</a>
+      <a href="comments.html">Comments</a>
+      <a href="messages.html" id="nav-msg-link" style="position:relative;">Messages</a>
+    </div>
+    <a href="#" class="nav-signin-btn show" id="nav-signin-btn" onclick="event.preventDefault();document.getElementById('auth-card')?.scrollIntoView({behavior:'smooth'})">Sign In</a>
+    <div style="position:relative;flex-shrink:0;z-index:101;">
+      <button class="nav-profile-btn" id="nav-profile-btn" onclick="window.location.href='profile.html'" title="My Profile">?</button>
     </div>
   </div>
 </nav>
@@ -676,8 +536,13 @@
   <!-- 3. Main area — shown when logged in -->
   <div id="main-tabs-area" style="display:none;">
 
-    <!-- ── SAVED PROFILES ── -->
-    <div id="tab-profiles">
+    <div class="page-tabs">
+      <button class="page-tab active" id="tab-btn-profiles" onclick="switchPageTab('profiles')">💾 Saved Profiles</button>
+      <button class="page-tab" id="tab-btn-diet" onclick="switchPageTab('diet')">🥗 Diet Plan</button>
+    </div>
+
+    <!-- ── SAVED PROFILES TAB ── -->
+    <div class="tab-content active" id="tab-profiles">
 
       <!-- ★ EDIT BLOCK: always first, shown when profiles loaded -->
       <div class="profiles-section" id="profiles-section" style="display:none;">
@@ -697,17 +562,29 @@
       <!-- ★ DETAIL PANEL: below the profiles/edit block, shown when a chip is clicked -->
       <div class="detail-panel" id="detail-panel"></div>
 
-      <!-- ★ ADD NEW PROFILE BUTTON -->
-      <div id="add-profile-section" style="margin-bottom:22px;">
-        <button id="btn-add-profile" onclick="toggleNewProfileForm()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;border-radius:var(--radius);border:2px dashed var(--teal);background:var(--teal-light);color:var(--teal-dark);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;">
-          <span style="font-size:1.4rem;">＋</span> Add a New Profile
-        </button>
+    </div><!-- end tab-profiles -->
+
+    <!-- ── DIET PLAN TAB ── -->
+    <div class="tab-content" id="tab-diet">
+
+      <!-- PROFILE SELECTOR -->
+      <div class="diet-section" id="diet-profile-section">
+        <div class="sec-label">Select Profile</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:14px;">Who's diet plan do you want to view?</div>
+        <div class="diet-profile-select" id="diet-profile-select">
+          <div style="color:var(--muted);font-size:13.5px;padding:4px 0;">Loading profiles…</div>
+        </div>
       </div>
 
-      <!-- ★ INLINE NEW PROFILE FORM (hidden by default) -->
-      <div id="new-profile-form-wrap" style="display:none;margin-bottom:40px;"></div>
+      <!-- DIET PLAN CONTENT (injected by JS) -->
+      <div id="diet-plan-content">
+        <div style="text-align:center;padding:48px 20px;color:var(--muted);">
+          <div style="font-size:3rem;margin-bottom:14px;">🥗</div>
+          <p style="font-size:15px;font-weight:500;">Select a profile above to load your premium diet plan.</p>
+        </div>
+      </div>
 
-    </div><!-- end tab-profiles -->
+    </div><!-- end tab-diet -->
 
   </div><!-- end main-tabs-area -->
 
@@ -799,86 +676,13 @@ let editMode     = false;
 let _pendingDeleteUid  = null;
 let _pendingDeleteName = null;
 
-// ── TOGGLE NEW PROFILE FORM ───────────────────────────────
-window.toggleNewProfileForm = function() {
-  const wrap = document.getElementById('new-profile-form-wrap');
-  const btn  = document.getElementById('btn-add-profile');
-  if (wrap.style.display === 'none' || wrap.style.display === '') {
-    if (!wrap.innerHTML.trim()) {
-      wrap.innerHTML = `
-        <div class="npf-header">
-          <div class="npf-header-text">
-            <div class="npf-header-label">New Entry</div>
-            <div class="npf-header-title">Add a New Profile</div>
-          </div>
-          <button class="npf-close-btn" onclick="toggleNewProfileForm()" title="Close">✕</button>
-        </div>
-        <div class="npf-body">
-          <iframe id="npf-iframe" src="form.html"
-            style="width:100%;border:none;min-height:1400px;display:block;"
-            onload="injectEmbedStyles(this)">
-          </iframe>
-        </div>`;
-    }
-    wrap.style.display = 'block';
-    btn.innerHTML = '<span style="font-size:1.4rem;">\u2715</span> Cancel';
-    btn.style.borderStyle = 'solid';
-    btn.style.background = '#fef2f2';
-    btn.style.color = '#dc2626';
-    btn.style.borderColor = '#fca5a5';
-    setTimeout(() => wrap.scrollIntoView({behavior:'smooth', block:'start'}), 80);
-  } else {
-    wrap.style.display = 'none';
-    btn.innerHTML = '<span style="font-size:1.4rem;">+</span> Add a New Profile';
-    btn.style.borderStyle = 'dashed';
-    btn.style.background = 'var(--teal-light)';
-    btn.style.color = 'var(--teal-dark)';
-    btn.style.borderColor = 'var(--teal)';
-  }
-};
-
-window.injectEmbedStyles = function(iframe) {
-  try {
-    const doc = iframe.contentWindow.document;
-
-    // Inject CSS to hide nav, wizard shell, modals and fix body/html overflow
-    const style = doc.createElement('style');
-    style.textContent = `
-      #top
-      #form-closed-banner { display: none !important; }
-      body, html { overflow: visible !important; height: auto !important; }
-      #wizard-body {
-        position: static !important;
-        top: auto !important; bottom: auto !important;
-        overflow: visible !important;
-        background: transparent !important;
-      }
-      #page-body {
-        padding-top: 0 !important;
-      }
-      .progress-area {
-        margin-top: 16px !important;
-      }
-    `;
-    doc.head.appendChild(style);
-
-    // Scroll iframe content to form-section
-    const formSection = doc.getElementById('form-section');
-    if (formSection) formSection.scrollIntoView();
-
-    // Auto-resize iframe height to match content
-    function syncHeight() {
-      const h = doc.body.scrollHeight;
-      if (h > 400) iframe.style.minHeight = h + 'px';
-    }
-    syncHeight();
-    // Keep resizing as form expands
-    const ro = new iframe.contentWindow.ResizeObserver(syncHeight);
-    ro.observe(doc.body);
-  } catch(e) {
-    // cross-origin — silently ignore
-    console.warn('Could not inject embed styles:', e);
-  }
+// ── PAGE TAB SWITCH ──────────────────────────────────────
+window.switchPageTab = function(tab) {
+  ['profiles','diet'].forEach(t => {
+    document.getElementById('tab-btn-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab === 'diet') renderDietProfileSelect();
 };
 
 // ── EDIT MODE TOGGLE ─────────────────────────────────────
@@ -962,12 +766,12 @@ async function loadProfileToForm(uid, name) {
       if (snap.exists()) data = snap.data();
     } catch(_) {}
 
-    // 2. Fallback: Google Sheets
+    // 2. Fallback: Google Sheets (wrapped — network errors should not surface to user)
     if (!data) {
       try {
         const res = await fetch(`${SHEET_URL}?userId=${encodeURIComponent(uid)}`);
         if (res.ok) { const j = await res.json(); if (j && !j.error) data = j; }
-      } catch(_) {}
+      } catch(_) { /* Sheets unreachable — silently skip */ }
     }
 
     if (!data) {
@@ -1121,6 +925,8 @@ async function doDelete(uid) {
       dp.innerHTML = '';
     }
 
+    // Refresh diet chips
+    renderDietProfileSelect();
 
   } catch(e) {
     alert('Delete failed: ' + e.message + '\n\nMake sure you are signed in and have permission.');
@@ -1343,40 +1149,6 @@ window.doSignOut = async () => {
 };
 
 // ── AUTH STATE ────────────────────────────────────────────
-
-/* ── SHARED NAVBAR LOGIC ─────────────────────── */
-function toggleNavDropdown() {
-  const dd = document.getElementById('avatar-dropdown');
-  if (dd) dd.classList.toggle('open');
-}
-document.addEventListener('click', function(e) {
-  const wrap = document.getElementById('nav-profile-wrap');
-  const dd = document.getElementById('avatar-dropdown');
-  if (wrap && dd && !wrap.contains(e.target)) dd.classList.remove('open');
-});
-async function doNavSignOut() {
-  try {
-    const { getAuth, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    if (window._fbAuth) await signOut(window._fbAuth);
-  } catch(e) {}
-  localStorage.removeItem('np_auth');
-  localStorage.removeItem('nutriplan_uid');
-  localStorage.removeItem('nutriplan_email');
-  const pb = document.getElementById('nav-profile-btn');
-  const sb = document.getElementById('nav-signin-btn');
-  const dd = document.getElementById('avatar-dropdown');
-  if (pb) pb.classList.remove('show');
-  if (sb) sb.classList.add('show');
-  if (dd) dd.classList.remove('open');
-  _updateAuthNavLinks(false);
-  window.location.href = 'index.html';
-}
-function _updateAuthNavLinks(signedIn) {
-  document.querySelectorAll('.nav-link-auth').forEach(el => {
-    el.classList.toggle('visible', signedIn);
-  });
-}
-
 onAuthStateChanged(auth, async user => {
   // Always run registration check once Firebase/Auth is confirmed ready
   await initRegCheck();
@@ -1388,14 +1160,12 @@ onAuthStateChanged(auth, async user => {
       if(e){e.textContent='Your account has been restricted.';e.style.display='block';}
       document.getElementById('nav-profile-btn').classList.remove('show');
       document.getElementById('nav-signin-btn').classList.add('show');
-      if(typeof _updateAuthNavLinks === 'function') _updateAuthNavLinks(false);
       return;
     }
     localStorage.setItem('np_auth','signed-in');
     const email=user.email, initials=email?email[0].toUpperCase():'?';
     document.getElementById('nav-profile-btn').textContent=initials;
     document.getElementById('nav-profile-btn').classList.add('show');
-    if(typeof _updateAuthNavLinks === 'function') _updateAuthNavLinks(true);
     document.getElementById('nav-signin-btn').classList.remove('show');
     document.getElementById('bar-email').textContent=email;
     document.getElementById('acct-avatar-initials').textContent=initials;
@@ -1407,7 +1177,6 @@ onAuthStateChanged(auth, async user => {
     localStorage.removeItem('np_auth');
     document.getElementById('nav-profile-btn').classList.remove('show');
     document.getElementById('nav-signin-btn').classList.add('show');
-    if(typeof _updateAuthNavLinks === 'function') _updateAuthNavLinks(false);
     document.getElementById('main-tabs-area').style.display='none';
   }
 });
@@ -1505,15 +1274,29 @@ window.selectProfile = async (userId, chipEl) => {
 
   try {
     let data=null;
+    // 1. Try submissions/{userId} — written by saveToFirestore on submit
     try {
       const snap=await getDoc(doc(db,"submissions",userId));
       if(snap.exists()) data=snap.data();
     } catch(_){}
+    // 2. Try assessments/{authUid} — written by saveAssessmentToFirebase
     if (!data) {
-      const res=await fetch(`${SHEET_URL}?userId=${encodeURIComponent(userId)}`);
-      if(res.ok){const j=await res.json();if(j&&!j.error) data=j;}
+      const user=auth.currentUser;
+      if (user) {
+        try {
+          const asnap=await getDoc(doc(db,'assessments',user.uid));
+          if(asnap.exists()) data=asnap.data();
+        } catch(_){}
+      }
     }
-    if (!data) throw new Error('Profile data not found. It may still be syncing — try again in a moment.');
+    // 3. Fallback: Google Sheets
+    if (!data) {
+      try {
+        const res=await fetch(`${SHEET_URL}?userId=${encodeURIComponent(userId)}`);
+        if(res.ok){const j=await res.json();if(j&&!j.error) data=j;}
+      } catch(_) { /* Sheets unreachable — silently skip */ }
+    }
+    if (!data) throw new Error('Profile data not found. Please submit the assessment form first, then try again.');
 
     let relInfo=null;
     const user=auth.currentUser;
@@ -2537,24 +2320,6 @@ window.dpGenerateNextWeek = function() {
   dpState.weeklyNote   = n || '';
   alert(`✨ Great work completing Week 1!\n\nWeight recorded: ${w||'not entered'} kg\n\nYour dietitian will review your progress and generate a new plan. Check back soon!`);
 };
-
-// Check if page was loaded with #add-profile hash
-window.addEventListener('DOMContentLoaded', function() {
-  if (window.location.hash === '#add-profile') {
-    // Wait a bit for the page to fully load, then trigger the add profile form
-    setTimeout(function() {
-      const addProfileBtn = document.getElementById('btn-add-profile');
-      if (addProfileBtn && typeof toggleNewProfileForm === 'function') {
-        toggleNewProfileForm();
-        // Scroll to the form
-        const newProfileForm = document.getElementById('new-profile-form');
-        if (newProfileForm) {
-          newProfileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-    }, 300);
-  }
-});
 
 </script>
 </body>
