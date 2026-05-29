@@ -4970,13 +4970,33 @@ function clearForm() {
   }
   if (drinkOpts) drinkOpts.style.display = 'block';
 
-  // Reset plan-for to self
-  const planSelf = document.getElementById('plan-for-self');
-  const planOther = document.getElementById('plan-for-other');
-  const planOtherFields = document.getElementById('plan-for-other-fields');
-  if (planSelf) planSelf.style.cssText += ';border-color:var(--teal);background:var(--teal);color:#fff;';
-  if (planOther) planOther.style.cssText += ';border-color:var(--border);background:var(--bg);color:var(--muted);';
-  if (planOtherFields) planOtherFields.style.display = 'none';
+  // Reset plan-for to self (use className swap, not cssText +=, to avoid style accumulation)
+  if (typeof window.setPlanFor === 'function') {
+    window.setPlanFor('self');
+  } else {
+    const planSelf = document.getElementById('plan-for-self');
+    const planOther = document.getElementById('plan-for-other');
+    const planOtherFields = document.getElementById('plan-for-other-fields');
+    if (planSelf)  { planSelf.style.cssText  = 'border-color:var(--teal);background:var(--teal);color:#fff;'; }
+    if (planOther) { planOther.style.cssText = 'border-color:var(--border);background:var(--bg);color:var(--muted);'; }
+    if (planOtherFields) planOtherFields.style.display = 'none';
+  }
+
+  // Reset female-extra-row (shown when gender = Female)
+  const femaleRow = document.getElementById('female-extra-row');
+  if (femaleRow) femaleRow.style.display = 'none';
+
+  // Reset goal-rate buttons to default (0.5 kg/week)
+  document.querySelectorAll('.goal-rate-btn').forEach(b => b.classList.remove('active-goal'));
+  const defaultGoalBtn = document.querySelector('.goal-rate-btn[data-rate="0.5"]');
+  if (defaultGoalBtn) defaultGoalBtn.classList.add('active-goal');
+
+  // Clear BMI / body-metrics result panel
+  const bmiResult = document.getElementById('bmi-result-area') || document.getElementById('metrics-result');
+  if (bmiResult) bmiResult.style.display = 'none';
+
+  // Reset height unit back to cm
+  if (typeof window.setHeightUnit === 'function') window.setHeightUnit('cm');
 
   setProgress(1);
   window.scrollTo({top:0,behavior:'smooth'});
@@ -5026,6 +5046,9 @@ function showToast(msg, type = '', duration = 3000) {
 
 // ── Show the submitted plan dashboard ──
 function showSubmittedPlanView(data) {
+  // Never show the submitted view if the user explicitly went back to the blank form
+  try { if (sessionStorage.getItem('nutriplan_back') === '1') return; } catch(e) {}
+
   const formWrap = document.getElementById('form-content-wrap');
   const spv = document.getElementById('submitted-plan-view');
   const stepIntro = document.querySelector('#wstep-3 .step-intro');
@@ -5639,13 +5662,17 @@ async function reopenAssessmentForm(mode) {
   } else {
     // ── Back mode — clear and show blank form ──
     clearForm();
+    setProgress(1);
     _existingEditUid = null;
     if (submitRowNormal) submitRowNormal.style.display = '';
     if (editModeBar)     editModeBar.style.display     = 'none';
     if (submitBtn) { submitBtn.style.display = ''; submitBtn.textContent = 'Submit My Plan Request'; }
     const banner = document.getElementById('edit-mode-banner');
     if (banner) banner.remove();
-    // Clear all saved state so the form stays blank and restoreDraft() doesn't repopulate it
+    // Show form, hide submitted view
+    if (formWrap) { formWrap.style.display = 'block'; formWrap.style.opacity = '1'; }
+    if (stepIntro) stepIntro.style.display = '';
+    // Clear all saved state so the form stays blank and restoreDraft() / loadExistingAssessment() don't repopulate it
     try {
       sessionStorage.removeItem('nutriplan_submitted');
       sessionStorage.removeItem('nutriplan_assessment');
@@ -5738,12 +5765,14 @@ async function loadExistingAssessment() {
   if (!user) return;
 
   // If user explicitly went back to the form, don't auto-show the plan view
-  try { if (sessionStorage.getItem('nutriplan_back') === '1') return; } catch(e) {}
+  const wentBack = () => { try { return sessionStorage.getItem('nutriplan_back') === '1'; } catch(e) { return false; } };
+  if (wentBack()) return;
 
   // First check sessionStorage
   try {
     const cached = JSON.parse(sessionStorage.getItem('nutriplan_assessment') || 'null');
     if (cached && cached.uid === user.uid) {
+      if (wentBack()) return; // re-check after sync ops
       showSubmittedPlanView(cached);
       return;
     }
@@ -5756,6 +5785,9 @@ async function loadExistingAssessment() {
 
     const docRef = doc(db, 'assessments', user.uid);
     const snap = await getDoc(docRef);
+
+    // Re-check after async Firebase fetch — user may have clicked "go back" while waiting
+    if (wentBack()) return;
 
     if (snap.exists()) {
       const data = snap.data();
