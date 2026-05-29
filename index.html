@@ -4712,6 +4712,7 @@ async function executeSubmit(formData, withFirebase) {
     _existingEditUid = null;
     setTimeout(() => showSubmittedPlanView(formData), 300);
   } else {
+    _wentBackToForm = false;
     try { sessionStorage.setItem('nutriplan_submitted', '1'); sessionStorage.removeItem('nutriplan_back'); } catch(e){}
     if (btn) { btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
     clearForm();
@@ -5047,7 +5048,7 @@ function showToast(msg, type = '', duration = 3000) {
 // ── Show the submitted plan dashboard ──
 function showSubmittedPlanView(data) {
   // Never show the submitted view if the user explicitly went back to the blank form
-  try { if (sessionStorage.getItem('nutriplan_back') === '1') return; } catch(e) {}
+  if (typeof isBackMode === 'function' && isBackMode()) return;
 
   const formWrap = document.getElementById('form-content-wrap');
   const spv = document.getElementById('submitted-plan-view');
@@ -5672,7 +5673,8 @@ async function reopenAssessmentForm(mode) {
     // Show form, hide submitted view
     if (formWrap) { formWrap.style.display = 'block'; formWrap.style.opacity = '1'; }
     if (stepIntro) stepIntro.style.display = '';
-    // Clear all saved state so the form stays blank and restoreDraft() / loadExistingAssessment() don't repopulate it
+    // Set back-mode flag (both in-memory and sessionStorage for cross-page persistence)
+    _wentBackToForm = true;
     try {
       sessionStorage.removeItem('nutriplan_submitted');
       sessionStorage.removeItem('nutriplan_assessment');
@@ -5709,9 +5711,8 @@ window.cancelEditMode = function() {
 
   try {
     const saved = JSON.parse(sessionStorage.getItem('nutriplan_assessment') || 'null');
-    const wentBack = sessionStorage.getItem('nutriplan_back') === '1';
     setTimeout(() => {
-      if (!wentBack) {
+      if (!isBackMode()) {
         spv.classList.add('show');
         if (saved) renderSubmittedSummary(saved);
       }
@@ -5759,20 +5760,23 @@ async function saveAssessmentToFirebase(data) {
   }
 }
 
+// ── Tracks when user clicked "Back to Assessment Form" — survives async races ──
+let _wentBackToForm = false;
+const isBackMode = () => _wentBackToForm || (()=>{ try { return sessionStorage.getItem('nutriplan_back') === '1'; } catch(e) { return false; } })();
+
 // ── Load existing assessment from Firebase on page load / login ──
 async function loadExistingAssessment() {
   const user = currentUser();
   if (!user) return;
 
-  // If user explicitly went back to the form, don't auto-show the plan view
-  const wentBack = () => { try { return sessionStorage.getItem('nutriplan_back') === '1'; } catch(e) { return false; } };
-  if (wentBack()) return;
+  // If user explicitly went back to the blank form, never auto-show the submitted view
+  if (isBackMode()) return;
 
-  // First check sessionStorage
+  // First check sessionStorage cache
   try {
     const cached = JSON.parse(sessionStorage.getItem('nutriplan_assessment') || 'null');
     if (cached && cached.uid === user.uid) {
-      if (wentBack()) return; // re-check after sync ops
+      if (isBackMode()) return;
       showSubmittedPlanView(cached);
       return;
     }
@@ -5787,13 +5791,15 @@ async function loadExistingAssessment() {
     const snap = await getDoc(docRef);
 
     // Re-check after async Firebase fetch — user may have clicked "go back" while waiting
-    if (wentBack()) return;
+    if (isBackMode()) return;
 
     if (snap.exists()) {
       const data = snap.data();
-      // Cache it
-      try { sessionStorage.setItem('nutriplan_assessment', JSON.stringify({ ...data, uid: user.uid })); } catch(e) {}
-      showSubmittedPlanView(data);
+      // Only cache if not in back mode (don't re-populate sessionStorage)
+      if (!isBackMode()) {
+        try { sessionStorage.setItem('nutriplan_assessment', JSON.stringify({ ...data, uid: user.uid })); } catch(e) {}
+        showSubmittedPlanView(data);
+      }
     }
   } catch(err) {
     console.error('loadExistingAssessment error:', err);
