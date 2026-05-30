@@ -4883,7 +4883,7 @@ window.proceedToAuth = function() {
       // Close modal and redirect to dietplan
       const modal = document.getElementById('accountModal');
       if (modal) modal.style.display = 'none';
-      window.location.href = 'dietplan.html';
+      window.location.href = 'Dietplan.html';
     })();
   } else {
     // Not logged in — show create / sign-in tabs
@@ -4944,7 +4944,7 @@ window.createAccount = async function() {
     // Close modal and redirect to dietplan
     const modal = document.getElementById('accountModal');
     if (modal) modal.style.display = 'none';
-    window.location.href = 'dietplan.html';
+    window.location.href = 'Dietplan.html';
   } catch(err) {
     if (createBtn) { createBtn.disabled=false; createBtn.textContent='Create Account →'; }
     const msg = ({
@@ -4981,7 +4981,7 @@ window.signInExisting = async function() {
     // Close modal and redirect to dietplan
     const modal = document.getElementById('accountModal');
     if (modal) modal.style.display = 'none';
-    window.location.href = 'dietplan.html';
+    window.location.href = 'Dietplan.html';
   } catch(err) {
     if (loginBtn) { loginBtn.disabled=false; loginBtn.textContent='Sign In →'; }
     const msg = ({
